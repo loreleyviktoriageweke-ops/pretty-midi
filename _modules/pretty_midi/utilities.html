@@ -1,0 +1,686 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pretty_midi.utilities &mdash; pretty_midi 0.2.11 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=51edad73"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pretty_midi
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../containers.html">containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../instrument.html">instrument</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pretty_midi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pretty_midi.utilities</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pretty_midi.utilities</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Utilty functions for converting between MIDI data and human-readable/usable</span>
+<span class="sd">values</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRUM_MAP</span><span class="p">,</span> <span class="n">INSTRUMENT_MAP</span><span class="p">,</span> <span class="n">INSTRUMENT_CLASSES</span>
+
+
+<div class="viewcode-block" id="key_number_to_key_name"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.key_number_to_key_name">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">key_number_to_key_name</span><span class="p">(</span><span class="n">key_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a key number to a key string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key_number : int</span>
+<span class="sd">        Uses pitch classes to represent major and minor keys.</span>
+<span class="sd">        For minor keys, adds a 12 offset.</span>
+<span class="sd">        For example, C major is 0 and C minor is 12.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key_name : str</span>
+<span class="sd">        Key name in the format ``&#39;(root) (mode)&#39;``, e.g. ``&#39;Gb minor&#39;``.</span>
+<span class="sd">        Gives preference for keys with flats, with the exception of F#, G# and</span>
+<span class="sd">        C# minor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_number</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`key_number` is not int!&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">key_number</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">key_number</span> <span class="o">&lt;</span> <span class="mi">24</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`key_number` is larger than 24&#39;</span><span class="p">)</span>
+
+    <span class="c1"># preference to keys with flats</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;Db&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;Eb&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;Gb&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;Ab&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;Bb&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+
+    <span class="c1"># circle around 12 pitch classes</span>
+    <span class="n">key_idx</span> <span class="o">=</span> <span class="n">key_number</span> <span class="o">%</span> <span class="mi">12</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">key_number</span> <span class="o">//</span> <span class="mi">12</span>
+
+    <span class="c1"># check if mode is major or minor</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">key_idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; Major&#39;</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># preference to C#, F# and G# minor</span>
+        <span class="k">if</span> <span class="n">key_idx</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">key_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;# minor&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">key_idx</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; minor&#39;</span></div>
+
+
+<div class="viewcode-block" id="key_name_to_key_number"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.key_name_to_key_number">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">key_name_to_key_number</span><span class="p">(</span><span class="n">key_string</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a key name string to key number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key_string : str</span>
+<span class="sd">        Format is ``&#39;(root) (mode)&#39;``, where:</span>
+<span class="sd">          * ``(root)`` is one of ABCDEFG or abcdefg.  A lowercase root</span>
+<span class="sd">            indicates a minor key when no mode string is specified.  Optionally</span>
+<span class="sd">            a # for sharp or b for flat can be specified.</span>
+
+<span class="sd">          * ``(mode)`` is optionally specified either as one of &#39;M&#39;, &#39;Maj&#39;,</span>
+<span class="sd">            &#39;Major&#39;, &#39;maj&#39;, or &#39;major&#39; for major or &#39;m&#39;, &#39;Min&#39;, &#39;Minor&#39;, &#39;min&#39;,</span>
+<span class="sd">            &#39;minor&#39; for minor.  If no mode is specified and the root is</span>
+<span class="sd">            uppercase, the mode is assumed to be major; if the root is</span>
+<span class="sd">            lowercase, the mode is assumed to be minor.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key_number : int</span>
+<span class="sd">        Integer representing the key and its mode.  Integers from 0 to 11</span>
+<span class="sd">        represent major keys from C to B; 12 to 23 represent minor keys from C</span>
+<span class="sd">        to B.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create lists of possible mode names (major or minor)</span>
+    <span class="n">major_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="s1">&#39;Maj&#39;</span><span class="p">,</span> <span class="s1">&#39;Major&#39;</span><span class="p">,</span> <span class="s1">&#39;maj&#39;</span><span class="p">,</span> <span class="s1">&#39;major&#39;</span><span class="p">]</span>
+    <span class="n">minor_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;Min&#39;</span><span class="p">,</span> <span class="s1">&#39;Minor&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;minor&#39;</span><span class="p">]</span>
+    <span class="c1"># Construct regular expression for matching key</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="c1"># Start with any of A-G, a-g</span>
+        <span class="s1">&#39;^(?P&lt;key&gt;[ABCDEFGabcdefg])&#39;</span>
+        <span class="c1"># Next, look for #, b, or nothing</span>
+        <span class="s1">&#39;(?P&lt;flatsharp&gt;[#b]?)&#39;</span>
+        <span class="c1"># Allow for a space between key and mode</span>
+        <span class="s1">&#39; ?&#39;</span>
+        <span class="c1"># Next, look for any of the mode strings</span>
+        <span class="s1">&#39;(?P&lt;mode&gt;(?:(?:&#39;</span> <span class="o">+</span>
+        <span class="c1"># Next, look for any of the major or minor mode strings</span>
+        <span class="s1">&#39;)|(?:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">major_strs</span> <span class="o">+</span> <span class="n">minor_strs</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;))?)$&#39;</span><span class="p">)</span>
+    <span class="c1"># Match provided key string</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">key_string</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Supplied key </span><span class="si">{}</span><span class="s1"> is not valid.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key_string</span><span class="p">))</span>
+    <span class="c1"># Convert result to dictionary</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+
+    <span class="c1"># Map from key string to pitch class number</span>
+    <span class="n">key_number</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                  <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">}[</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="c1"># Increment or decrement pitch class if a flat or sharp was specified</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;flatsharp&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;flatsharp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+            <span class="n">key_number</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;flatsharp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span>
+            <span class="n">key_number</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="c1"># Circle around 12 pitch classes</span>
+    <span class="n">key_number</span> <span class="o">=</span> <span class="n">key_number</span> <span class="o">%</span> <span class="mi">12</span>
+    <span class="c1"># Offset if mode is minor, or the key name is lowercase</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">minor_strs</span> <span class="ow">or</span> <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">islower</span><span class="p">()</span> <span class="ow">and</span>
+                                        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;mode&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">major_strs</span><span class="p">):</span>
+        <span class="n">key_number</span> <span class="o">+=</span> <span class="mi">12</span>
+
+    <span class="k">return</span> <span class="n">key_number</span></div>
+
+
+<div class="viewcode-block" id="mode_accidentals_to_key_number"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.mode_accidentals_to_key_number">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">mode_accidentals_to_key_number</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">num_accidentals</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a given number of accidentals and mode to a key number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mode : int</span>
+<span class="sd">        0 is major, 1 is minor.</span>
+<span class="sd">    num_accidentals : int</span>
+<span class="sd">        Positive number is used for sharps, negative number is used for flats.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key_number : int</span>
+<span class="sd">        Integer representing the key and its mode.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">num_accidentals</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="n">num_accidentals</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">8</span> <span class="ow">and</span>
+            <span class="n">num_accidentals</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Number of accidentals </span><span class="si">{}</span><span class="s1"> is not valid&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">num_accidentals</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mode </span><span class="si">{}</span><span class="s1"> is not recognizable, must be 0 or 1&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">mode</span><span class="p">))</span>
+
+    <span class="n">sharp_keys</span> <span class="o">=</span> <span class="s1">&#39;CGDAEBF&#39;</span>
+    <span class="n">flat_keys</span> <span class="o">=</span> <span class="s1">&#39;FBEADGC&#39;</span>
+
+    <span class="c1"># check if key signature has sharps or flats</span>
+    <span class="k">if</span> <span class="n">num_accidentals</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">num_sharps</span> <span class="o">=</span> <span class="n">num_accidentals</span> <span class="o">//</span> <span class="mi">6</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">sharp_keys</span><span class="p">[</span><span class="n">num_accidentals</span> <span class="o">%</span> <span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_sharps</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">num_accidentals</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">flat_keys</span><span class="p">[(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">num_accidentals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;b&#39;</span>
+
+    <span class="c1"># find major key number</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s1">&#39; Major&#39;</span>
+
+    <span class="c1"># use routine to convert from string notation to number notation</span>
+    <span class="n">key_number</span> <span class="o">=</span> <span class="n">key_name_to_key_number</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="c1"># if minor, offset</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">key_number</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">+</span> <span class="p">((</span><span class="n">key_number</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">key_number</span></div>
+
+
+<div class="viewcode-block" id="key_number_to_mode_accidentals"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.key_number_to_mode_accidentals">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">key_number_to_mode_accidentals</span><span class="p">(</span><span class="n">key_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a key number to number of accidentals and mode.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key_number : int</span>
+<span class="sd">        Key number as used in ``pretty_midi``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mode : int</span>
+<span class="sd">        0 for major, 1 for minor.</span>
+<span class="sd">    num_accidentals : int</span>
+<span class="sd">        Number of accidentals.</span>
+<span class="sd">        Positive is for sharps and negative is for flats.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key_number</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span>
+             <span class="n">key_number</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span>
+             <span class="n">key_number</span> <span class="o">&lt;</span> <span class="mi">24</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Key number </span><span class="si">{}</span><span class="s1"> is not a must be an int between 0 and &#39;</span>
+                         <span class="s1">&#39;24&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key_number</span><span class="p">))</span>
+
+    <span class="n">pc_to_num_accidentals_major</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                                   <span class="mi">7</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">key_number</span> <span class="o">//</span> <span class="mi">12</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">num_accidentals</span> <span class="o">=</span> <span class="n">pc_to_num_accidentals_major</span><span class="p">[</span><span class="n">key_number</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">mode</span><span class="p">,</span> <span class="n">num_accidentals</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">key_number</span> <span class="o">=</span> <span class="p">(</span><span class="n">key_number</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span>
+        <span class="n">num_accidentals</span> <span class="o">=</span> <span class="n">pc_to_num_accidentals_major</span><span class="p">[</span><span class="n">key_number</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">mode</span><span class="p">,</span> <span class="n">num_accidentals</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="qpm_to_bpm"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.qpm_to_bpm">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">qpm_to_bpm</span><span class="p">(</span><span class="n">quarter_note_tempo</span><span class="p">,</span> <span class="n">numerator</span><span class="p">,</span> <span class="n">denominator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts from quarter notes per minute to beats per minute.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    quarter_note_tempo : float</span>
+<span class="sd">        Quarter note tempo.</span>
+<span class="sd">    numerator : int</span>
+<span class="sd">        Numerator of time signature.</span>
+<span class="sd">    denominator : int</span>
+<span class="sd">        Denominator of time signature.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bpm : float</span>
+<span class="sd">        Tempo in beats per minute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">quarter_note_tempo</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span>
+            <span class="n">quarter_note_tempo</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Quarter notes per minute must be an int or float &#39;</span>
+            <span class="s1">&#39;greater than 0, but </span><span class="si">{}</span><span class="s1"> was supplied&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quarter_note_tempo</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">numerator</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numerator</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Time signature numerator must be an int greater than 0, but </span><span class="si">{}</span><span class="s1"> &#39;</span>
+            <span class="s1">&#39;was supplied.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numerator</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">denominator</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">denominator</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Time signature denominator must be an int greater than 0, but </span><span class="si">{}</span><span class="s1"> &#39;</span>
+            <span class="s1">&#39;was supplied.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">denominator</span><span class="p">))</span>
+
+    <span class="c1"># denominator is whole, half, quarter, eighth, sixteenth or 32nd note</span>
+    <span class="k">if</span> <span class="n">denominator</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">]:</span>
+        <span class="c1"># simple triple</span>
+        <span class="k">if</span> <span class="n">numerator</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">quarter_note_tempo</span> <span class="o">*</span> <span class="n">denominator</span> <span class="o">/</span> <span class="mf">4.0</span>
+        <span class="c1"># compound meter 6/8*n, 9/8*n, 12/8*n...</span>
+        <span class="k">elif</span> <span class="n">numerator</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">quarter_note_tempo</span> <span class="o">/</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">denominator</span> <span class="o">/</span> <span class="mf">4.0</span>
+        <span class="c1"># strongly assume two eighths equal a beat</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">quarter_note_tempo</span> <span class="o">*</span> <span class="n">denominator</span> <span class="o">/</span> <span class="mf">4.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">quarter_note_tempo</span></div>
+
+
+<div class="viewcode-block" id="note_number_to_hz"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.note_number_to_hz">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">note_number_to_hz</span><span class="p">(</span><span class="n">note_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a (fractional) MIDI note number to its frequency in Hz.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    note_number : float</span>
+<span class="sd">        MIDI note number, can be fractional.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    note_frequency : float</span>
+<span class="sd">        Frequency of the note in Hz.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># MIDI note numbers are defined as the number of semitones relative to C0</span>
+    <span class="c1"># in a 440 Hz tuning</span>
+    <span class="k">return</span> <span class="mf">440.0</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">**</span><span class="p">((</span><span class="n">note_number</span> <span class="o">-</span> <span class="mi">69</span><span class="p">)</span><span class="o">/</span><span class="mf">12.0</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="hz_to_note_number"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.hz_to_note_number">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">hz_to_note_number</span><span class="p">(</span><span class="n">frequency</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a frequency in Hz to a (fractional) note number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frequency : float</span>
+<span class="sd">        Frequency of the note in Hz.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    note_number : float</span>
+<span class="sd">        MIDI note number, can be fractional.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># MIDI note numbers are defined as the number of semitones relative to C0</span>
+    <span class="c1"># in a 440 Hz tuning</span>
+    <span class="k">return</span> <span class="mi">12</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mf">440.0</span><span class="p">))</span> <span class="o">+</span> <span class="mi">69</span></div>
+
+
+<div class="viewcode-block" id="note_name_to_number"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.note_name_to_number">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">note_name_to_number</span><span class="p">(</span><span class="n">note_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a note name in the format</span>
+<span class="sd">    ``&#39;(note)(accidental)(octave number)&#39;`` (e.g. ``&#39;C#4&#39;``) to MIDI note</span>
+<span class="sd">    number.</span>
+
+<span class="sd">    ``&#39;(note)&#39;`` is required, and is case-insensitive.</span>
+
+<span class="sd">    ``&#39;(accidental)&#39;`` should be ``&#39;&#39;`` for natural, ``&#39;#&#39;`` for sharp and</span>
+<span class="sd">    ``&#39;!&#39;`` or ``&#39;b&#39;`` for flat.</span>
+
+<span class="sd">    If ``&#39;(octave)&#39;`` is ``&#39;&#39;``, octave 0 is assumed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    note_name : str</span>
+<span class="sd">        A note name, as described above.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    note_number : int</span>
+<span class="sd">        MIDI note number corresponding to the provided note name.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        Thanks to Brian McFee.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Map note name to the semitone</span>
+    <span class="n">pitch_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">}</span>
+    <span class="c1"># Relative change in semitone denoted by each accidental</span>
+    <span class="n">acc_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;#&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;!&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+
+    <span class="c1"># Reg exp will raise an error when the note name is not valid</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Extract pitch, octave, and accidental from the supplied note name</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(?P&lt;n&gt;[A-Ga-g])(?P&lt;off&gt;[#b!]?)(?P&lt;oct&gt;[+-]?\d+)$&#39;</span><span class="p">,</span>
+                         <span class="n">note_name</span><span class="p">)</span>
+
+        <span class="n">pitch</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">acc_map</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)]</span>
+        <span class="n">octave</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;oct&#39;</span><span class="p">))</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Improper note format: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">note_name</span><span class="p">))</span>
+
+    <span class="c1"># Convert from the extrated ints to a full note number</span>
+    <span class="k">return</span> <span class="mi">12</span><span class="o">*</span><span class="p">(</span><span class="n">octave</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">pitch_map</span><span class="p">[</span><span class="n">pitch</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span></div>
+
+
+<div class="viewcode-block" id="note_number_to_name"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.note_number_to_name">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">note_number_to_name</span><span class="p">(</span><span class="n">note_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a MIDI note number to its name, in the format</span>
+<span class="sd">    ``&#39;(note)(accidental)(octave number)&#39;`` (e.g. ``&#39;C#4&#39;``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    note_number : int</span>
+<span class="sd">        MIDI note number.  If not an int, it will be rounded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    note_name : str</span>
+<span class="sd">        Name of the supplied MIDI note number.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        Thanks to Brian McFee.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Note names within one octave</span>
+    <span class="n">semis</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;C#&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;D#&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;F#&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;G#&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;A#&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Ensure the note is an int</span>
+    <span class="n">note_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">note_number</span><span class="p">))</span>
+
+    <span class="c1"># Get the semitone and the octave, and concatenate to create the name</span>
+    <span class="k">return</span> <span class="n">semis</span><span class="p">[</span><span class="n">note_number</span> <span class="o">%</span> <span class="mi">12</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">note_number</span><span class="o">//</span><span class="mi">12</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="note_number_to_drum_name"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.note_number_to_drum_name">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">note_number_to_drum_name</span><span class="p">(</span><span class="n">note_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a MIDI note number in a percussion instrument to the</span>
+<span class="sd">    corresponding drum name, according to the General MIDI standard.</span>
+
+<span class="sd">    Any MIDI note number outside of the valid range (note 35-81, zero-indexed)</span>
+<span class="sd">    will result in an empty string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    note_number : int</span>
+<span class="sd">        MIDI note number.  If not an int, it will be rounded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    drum_name : str</span>
+<span class="sd">        Name of the drum for this note for a percussion instrument.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        See http://www.midi.org/techspecs/gm1sound.php</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Ensure note is an int</span>
+    <span class="n">note_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">note_number</span><span class="p">))</span>
+    <span class="c1"># General MIDI only defines drum names for notes 35-81</span>
+    <span class="k">if</span> <span class="n">note_number</span> <span class="o">&lt;</span> <span class="mi">35</span> <span class="ow">or</span> <span class="n">note_number</span> <span class="o">&gt;</span> <span class="mi">81</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Our DRUM_MAP starts from index 0; drum names start from 35</span>
+        <span class="k">return</span> <span class="n">DRUM_MAP</span><span class="p">[</span><span class="n">note_number</span> <span class="o">-</span> <span class="mi">35</span><span class="p">]</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__normalize_str</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes all non-alphanumeric characters from a string and converts</span>
+<span class="sd">    it to lowercase.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isalnum</span><span class="p">())</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="drum_name_to_note_number"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.drum_name_to_note_number">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">drum_name_to_note_number</span><span class="p">(</span><span class="n">drum_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a drum name to the corresponding MIDI note number for a</span>
+<span class="sd">    percussion instrument.  Conversion is case, whitespace, and</span>
+<span class="sd">    non-alphanumeric character insensitive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    drum_name : str</span>
+<span class="sd">        Name of a drum which exists in the general MIDI standard.</span>
+<span class="sd">        If the drum is not found, a ValueError is raised.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    note_number : int</span>
+<span class="sd">        The MIDI note number corresponding to this drum.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        See http://www.midi.org/techspecs/gm1sound.php</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">normalized_drum_name</span> <span class="o">=</span> <span class="n">__normalize_str</span><span class="p">(</span><span class="n">drum_name</span><span class="p">)</span>
+    <span class="c1"># Create a list of the entries DRUM_MAP, normalized, to search over</span>
+    <span class="n">normalized_drum_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">__normalize_str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">DRUM_MAP</span><span class="p">]</span>
+
+    <span class="c1"># If the normalized drum name is not found, complain</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">note_index</span> <span class="o">=</span> <span class="n">normalized_drum_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">normalized_drum_name</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid General MIDI drum &#39;</span>
+                         <span class="s1">&#39;name.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">drum_name</span><span class="p">))</span>
+
+    <span class="c1"># If an index was found, it will be 0-based; add 35 to get the note number</span>
+    <span class="k">return</span> <span class="n">note_index</span> <span class="o">+</span> <span class="mi">35</span></div>
+
+
+<div class="viewcode-block" id="program_to_instrument_name"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.program_to_instrument_name">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">program_to_instrument_name</span><span class="p">(</span><span class="n">program_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a MIDI program number to the corresponding General MIDI</span>
+<span class="sd">    instrument name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    program_number : int</span>
+<span class="sd">        MIDI program number, between 0 and 127.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    instrument_name : str</span>
+<span class="sd">        Name of the instrument corresponding to this program number.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        See http://www.midi.org/techspecs/gm1sound.php</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Check that the supplied program is in the valid range</span>
+    <span class="k">if</span> <span class="n">program_number</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">program_number</span> <span class="o">&gt;</span> <span class="mi">127</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid program number </span><span class="si">{}</span><span class="s1">, should be between 0 and&#39;</span>
+                         <span class="s1">&#39; 127&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">program_number</span><span class="p">))</span>
+    <span class="c1"># Just grab the name from the instrument mapping list</span>
+    <span class="k">return</span> <span class="n">INSTRUMENT_MAP</span><span class="p">[</span><span class="n">program_number</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="instrument_name_to_program"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.instrument_name_to_program">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">instrument_name_to_program</span><span class="p">(</span><span class="n">instrument_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts an instrument name to the corresponding General MIDI program</span>
+<span class="sd">    number.  Conversion is case, whitespace, and non-alphanumeric character</span>
+<span class="sd">    insensitive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    instrument_name : str</span>
+<span class="sd">        Name of an instrument which exists in the general MIDI standard.</span>
+<span class="sd">        If the instrument is not found, a ValueError is raised.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    program_number : int</span>
+<span class="sd">        The MIDI program number corresponding to this instrument.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        See http://www.midi.org/techspecs/gm1sound.php</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">normalized_inst_name</span> <span class="o">=</span> <span class="n">__normalize_str</span><span class="p">(</span><span class="n">instrument_name</span><span class="p">)</span>
+    <span class="c1"># Create a list of the entries INSTRUMENT_MAP, normalized, to search over</span>
+    <span class="n">normalized_inst_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">__normalize_str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span>
+                             <span class="n">INSTRUMENT_MAP</span><span class="p">]</span>
+
+    <span class="c1"># If the normalized drum name is not found, complain</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">program_number</span> <span class="o">=</span> <span class="n">normalized_inst_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">normalized_inst_name</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid General MIDI instrument &#39;</span>
+                         <span class="s1">&#39;name.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">instrument_name</span><span class="p">))</span>
+
+    <span class="c1"># Return the index (program number) if a match was found</span>
+    <span class="k">return</span> <span class="n">program_number</span></div>
+
+
+<div class="viewcode-block" id="program_to_instrument_class"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.program_to_instrument_class">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">program_to_instrument_class</span><span class="p">(</span><span class="n">program_number</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a MIDI program number to the corresponding General MIDI</span>
+<span class="sd">    instrument class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    program_number : int</span>
+<span class="sd">        MIDI program number, between 0 and 127.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    instrument_class : str</span>
+<span class="sd">        Name of the instrument class corresponding to this program number.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        See http://www.midi.org/techspecs/gm1sound.php</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Check that the supplied program is in the valid range</span>
+    <span class="k">if</span> <span class="n">program_number</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">program_number</span> <span class="o">&gt;</span> <span class="mi">127</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid program number </span><span class="si">{}</span><span class="s1">, should be between 0 and&#39;</span>
+                         <span class="s1">&#39; 127&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">program_number</span><span class="p">))</span>
+    <span class="c1"># Just grab the name from the instrument mapping list</span>
+    <span class="k">return</span> <span class="n">INSTRUMENT_CLASSES</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">program_number</span><span class="p">)</span><span class="o">//</span><span class="mi">8</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="pitch_bend_to_semitones"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.pitch_bend_to_semitones">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">pitch_bend_to_semitones</span><span class="p">(</span><span class="n">pitch_bend</span><span class="p">,</span> <span class="n">semitone_range</span><span class="o">=</span><span class="mf">2.</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a MIDI pitch bend value (in the range ``[-8192, 8191]``) to the</span>
+<span class="sd">    bend amount in semitones.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pitch_bend : int</span>
+<span class="sd">        MIDI pitch bend amount, in ``[-8192, 8191]``.</span>
+<span class="sd">    semitone_range : float</span>
+<span class="sd">        Convert to +/- this semitone range.  Default is 2., which is the</span>
+<span class="sd">        General MIDI standard +/-2 semitone range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    semitones : float</span>
+<span class="sd">        Number of semitones corresponding to this pitch bend amount.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">semitone_range</span><span class="o">*</span><span class="n">pitch_bend</span><span class="o">/</span><span class="mf">8192.0</span></div>
+
+
+<div class="viewcode-block" id="semitones_to_pitch_bend"><a class="viewcode-back" href="../../utilities.html#pretty_midi.utilities.semitones_to_pitch_bend">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">semitones_to_pitch_bend</span><span class="p">(</span><span class="n">semitones</span><span class="p">,</span> <span class="n">semitone_range</span><span class="o">=</span><span class="mf">2.</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a semitone value to the corresponding MIDI pitch bend integer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    semitones : float</span>
+<span class="sd">        Number of semitones for the pitch bend.</span>
+<span class="sd">    semitone_range : float</span>
+<span class="sd">        Convert to +/- this semitone range.  Default is 2., which is the</span>
+<span class="sd">        General MIDI standard +/-2 semitone range.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pitch_bend : int</span>
+<span class="sd">        MIDI pitch bend amount, in ``[-8192, 8191]``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="mi">8192</span><span class="o">*</span><span class="p">(</span><span class="n">semitones</span><span class="o">/</span><span class="n">semitone_range</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Colin Raffel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

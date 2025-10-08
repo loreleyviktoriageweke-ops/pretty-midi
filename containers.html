@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>containers &mdash; pretty_midi 0.2.11 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=51edad73"></script>
+      <script src="_static/doctools.js?v=888ff710"></script>
+      <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utilities" href="utilities.html" />
+    <link rel="prev" title="pretty_midi" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pretty_midi
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">containers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.Note"><code class="docutils literal notranslate"><span class="pre">Note</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.Note.__init__"><code class="docutils literal notranslate"><span class="pre">Note.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.Note.get_duration"><code class="docutils literal notranslate"><span class="pre">Note.get_duration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.PitchBend"><code class="docutils literal notranslate"><span class="pre">PitchBend</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.PitchBend.__init__"><code class="docutils literal notranslate"><span class="pre">PitchBend.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.ControlChange"><code class="docutils literal notranslate"><span class="pre">ControlChange</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.ControlChange.__init__"><code class="docutils literal notranslate"><span class="pre">ControlChange.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.TimeSignature"><code class="docutils literal notranslate"><span class="pre">TimeSignature</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.TimeSignature.__init__"><code class="docutils literal notranslate"><span class="pre">TimeSignature.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.KeySignature"><code class="docutils literal notranslate"><span class="pre">KeySignature</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.KeySignature.__init__"><code class="docutils literal notranslate"><span class="pre">KeySignature.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.Lyric"><code class="docutils literal notranslate"><span class="pre">Lyric</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.Lyric.__init__"><code class="docutils literal notranslate"><span class="pre">Lyric.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.containers.Text"><code class="docutils literal notranslate"><span class="pre">Text</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.containers.Text.__init__"><code class="docutils literal notranslate"><span class="pre">Text.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">instrument</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pretty_midi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">containers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/containers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pretty_midi.containers">
+<span id="containers"></span><h1>containers<a class="headerlink" href="#module-pretty_midi.containers" title="Permalink to this heading"></a></h1>
+<p>These classes simply hold MIDI data in a convenient form.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.Note">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">Note</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Note"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Note" title="Permalink to this definition"></a></dt>
+<dd><p>A note event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>velocity</strong><span class="classifier">int</span></dt><dd><p>Note velocity.</p>
+</dd>
+<dt><strong>pitch</strong><span class="classifier">int</span></dt><dd><p>Note pitch, as a MIDI note number.</p>
+</dd>
+<dt><strong>start</strong><span class="classifier">float</span></dt><dd><p>Note on time, absolute, in seconds.</p>
+</dd>
+<dt><strong>end</strong><span class="classifier">float</span></dt><dd><p>Note off time, absolute, in seconds.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.Note.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Note.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Note.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.Note.get_duration">
+<span class="sig-name descname"><span class="pre">get_duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Note.get_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Note.get_duration" title="Permalink to this definition"></a></dt>
+<dd><p>Get the duration of the note in seconds.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.PitchBend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">PitchBend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#PitchBend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.PitchBend" title="Permalink to this definition"></a></dt>
+<dd><p>A pitch bend event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pitch</strong><span class="classifier">int</span></dt><dd><p>MIDI pitch bend amount, in the range <code class="docutils literal notranslate"><span class="pre">[-8192,</span> <span class="pre">8191]</span></code>.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>Time where the pitch bend occurs.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.PitchBend.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#PitchBend.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.PitchBend.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.ControlChange">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">ControlChange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#ControlChange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.ControlChange" title="Permalink to this definition"></a></dt>
+<dd><p>A control change event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>number</strong><span class="classifier">int</span></dt><dd><p>The control change number, in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">127]</span></code>.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">int</span></dt><dd><p>The value of the control change, in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">127]</span></code>.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>Time where the control change occurs.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.ControlChange.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#ControlChange.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.ControlChange.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.TimeSignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">TimeSignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">denominator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#TimeSignature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.TimeSignature" title="Permalink to this definition"></a></dt>
+<dd><p>Container for a Time Signature event, which contains the time signature
+numerator, denominator and the event time in seconds.</p>
+<p class="rubric">Examples</p>
+<p>Instantiate a TimeSignature object with 6/8 time signature at 3.14 seconds:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSignature</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">3.14</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+<span class="go">6/8 at 3.14 seconds</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>numerator</strong><span class="classifier">int</span></dt><dd><p>Numerator of time signature.</p>
+</dd>
+<dt><strong>denominator</strong><span class="classifier">int</span></dt><dd><p>Denominator of time signature.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>Time of event in seconds.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.TimeSignature.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">denominator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#TimeSignature.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.TimeSignature.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.KeySignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">KeySignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#KeySignature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.KeySignature" title="Permalink to this definition"></a></dt>
+<dd><p>Contains the key signature and the event time in seconds.
+Only supports major and minor keys.</p>
+<p class="rubric">Examples</p>
+<p>Instantiate a C# minor KeySignature object at 3.14 seconds:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ks</span> <span class="o">=</span> <span class="n">KeySignature</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">3.14</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+<span class="go">C# minor at 3.14 seconds</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key_number</strong><span class="classifier">int</span></dt><dd><p>Key number according to <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">11]</span></code> Major, <code class="docutils literal notranslate"><span class="pre">[12,</span> <span class="pre">23]</span></code> minor.
+For example, 0 is C Major, 12 is C minor.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>Time of event in seconds.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.KeySignature.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#KeySignature.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.KeySignature.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.Lyric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">Lyric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Lyric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Lyric" title="Permalink to this definition"></a></dt>
+<dd><p>Timestamped lyric text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str</span></dt><dd><p>The text of the lyric.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>The time in seconds of the lyric.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.Lyric.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Lyric.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Lyric.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.containers.Text">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.containers.</span></span><span class="sig-name descname"><span class="pre">Text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Text" title="Permalink to this definition"></a></dt>
+<dd><p>Timestamped text event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>text</strong><span class="classifier">str</span></dt><dd><p>The text.</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>The time it occurs in seconds.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.containers.Text.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/containers.html#Text.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.containers.Text.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="pretty_midi" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utilities.html" class="btn btn-neutral float-right" title="utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Colin Raffel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

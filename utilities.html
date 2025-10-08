@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utilities &mdash; pretty_midi 0.2.11 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=51edad73"></script>
+      <script src="_static/doctools.js?v=888ff710"></script>
+      <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="constants" href="constants.html" />
+    <link rel="prev" title="containers" href="containers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pretty_midi
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="containers.html">containers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.key_number_to_key_name"><code class="docutils literal notranslate"><span class="pre">key_number_to_key_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.key_name_to_key_number"><code class="docutils literal notranslate"><span class="pre">key_name_to_key_number()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.mode_accidentals_to_key_number"><code class="docutils literal notranslate"><span class="pre">mode_accidentals_to_key_number()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.key_number_to_mode_accidentals"><code class="docutils literal notranslate"><span class="pre">key_number_to_mode_accidentals()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.qpm_to_bpm"><code class="docutils literal notranslate"><span class="pre">qpm_to_bpm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.note_number_to_hz"><code class="docutils literal notranslate"><span class="pre">note_number_to_hz()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.hz_to_note_number"><code class="docutils literal notranslate"><span class="pre">hz_to_note_number()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.note_name_to_number"><code class="docutils literal notranslate"><span class="pre">note_name_to_number()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.note_number_to_name"><code class="docutils literal notranslate"><span class="pre">note_number_to_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.note_number_to_drum_name"><code class="docutils literal notranslate"><span class="pre">note_number_to_drum_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.drum_name_to_note_number"><code class="docutils literal notranslate"><span class="pre">drum_name_to_note_number()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.program_to_instrument_name"><code class="docutils literal notranslate"><span class="pre">program_to_instrument_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.instrument_name_to_program"><code class="docutils literal notranslate"><span class="pre">instrument_name_to_program()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.program_to_instrument_class"><code class="docutils literal notranslate"><span class="pre">program_to_instrument_class()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.pitch_bend_to_semitones"><code class="docutils literal notranslate"><span class="pre">pitch_bend_to_semitones()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.utilities.semitones_to_pitch_bend"><code class="docutils literal notranslate"><span class="pre">semitones_to_pitch_bend()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">instrument</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pretty_midi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">utilities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/utilities.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pretty_midi.utilities">
+<span id="utilities"></span><h1>utilities<a class="headerlink" href="#module-pretty_midi.utilities" title="Permalink to this heading"></a></h1>
+<p>Utilty functions for converting between MIDI data and human-readable/usable
+values</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.key_number_to_key_name">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">key_number_to_key_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#key_number_to_key_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.key_number_to_key_name" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a key number to a key string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key_number</strong><span class="classifier">int</span></dt><dd><p>Uses pitch classes to represent major and minor keys.
+For minor keys, adds a 12 offset.
+For example, C major is 0 and C minor is 12.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>key_name</strong><span class="classifier">str</span></dt><dd><p>Key name in the format <code class="docutils literal notranslate"><span class="pre">'(root)</span> <span class="pre">(mode)'</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">'Gb</span> <span class="pre">minor'</span></code>.
+Gives preference for keys with flats, with the exception of F#, G# and
+C# minor.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.key_name_to_key_number">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">key_name_to_key_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#key_name_to_key_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.key_name_to_key_number" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a key name string to key number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key_string</strong><span class="classifier">str</span></dt><dd><dl class="simple">
+<dt>Format is <code class="docutils literal notranslate"><span class="pre">'(root)</span> <span class="pre">(mode)'</span></code>, where:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">(root)</span></code> is one of ABCDEFG or abcdefg.  A lowercase root
+indicates a minor key when no mode string is specified.  Optionally
+a # for sharp or b for flat can be specified.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">(mode)</span></code> is optionally specified either as one of ‘M’, ‘Maj’,
+‘Major’, ‘maj’, or ‘major’ for major or ‘m’, ‘Min’, ‘Minor’, ‘min’,
+‘minor’ for minor.  If no mode is specified and the root is
+uppercase, the mode is assumed to be major; if the root is
+lowercase, the mode is assumed to be minor.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>key_number</strong><span class="classifier">int</span></dt><dd><p>Integer representing the key and its mode.  Integers from 0 to 11
+represent major keys from C to B; 12 to 23 represent minor keys from C
+to B.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.mode_accidentals_to_key_number">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">mode_accidentals_to_key_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_accidentals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#mode_accidentals_to_key_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.mode_accidentals_to_key_number" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a given number of accidentals and mode to a key number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mode</strong><span class="classifier">int</span></dt><dd><p>0 is major, 1 is minor.</p>
+</dd>
+<dt><strong>num_accidentals</strong><span class="classifier">int</span></dt><dd><p>Positive number is used for sharps, negative number is used for flats.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>key_number</strong><span class="classifier">int</span></dt><dd><p>Integer representing the key and its mode.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.key_number_to_mode_accidentals">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">key_number_to_mode_accidentals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#key_number_to_mode_accidentals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.key_number_to_mode_accidentals" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a key number to number of accidentals and mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key_number</strong><span class="classifier">int</span></dt><dd><p>Key number as used in <code class="docutils literal notranslate"><span class="pre">pretty_midi</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mode</strong><span class="classifier">int</span></dt><dd><p>0 for major, 1 for minor.</p>
+</dd>
+<dt><strong>num_accidentals</strong><span class="classifier">int</span></dt><dd><p>Number of accidentals.
+Positive is for sharps and negative is for flats.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.qpm_to_bpm">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">qpm_to_bpm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quarter_note_tempo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">denominator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#qpm_to_bpm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.qpm_to_bpm" title="Permalink to this definition"></a></dt>
+<dd><p>Converts from quarter notes per minute to beats per minute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>quarter_note_tempo</strong><span class="classifier">float</span></dt><dd><p>Quarter note tempo.</p>
+</dd>
+<dt><strong>numerator</strong><span class="classifier">int</span></dt><dd><p>Numerator of time signature.</p>
+</dd>
+<dt><strong>denominator</strong><span class="classifier">int</span></dt><dd><p>Denominator of time signature.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>bpm</strong><span class="classifier">float</span></dt><dd><p>Tempo in beats per minute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.note_number_to_hz">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">note_number_to_hz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#note_number_to_hz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.note_number_to_hz" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a (fractional) MIDI note number to its frequency in Hz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>note_number</strong><span class="classifier">float</span></dt><dd><p>MIDI note number, can be fractional.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>note_frequency</strong><span class="classifier">float</span></dt><dd><p>Frequency of the note in Hz.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.hz_to_note_number">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">hz_to_note_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#hz_to_note_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.hz_to_note_number" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a frequency in Hz to a (fractional) note number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequency</strong><span class="classifier">float</span></dt><dd><p>Frequency of the note in Hz.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>note_number</strong><span class="classifier">float</span></dt><dd><p>MIDI note number, can be fractional.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.note_name_to_number">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">note_name_to_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#note_name_to_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.note_name_to_number" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a note name in the format
+<code class="docutils literal notranslate"><span class="pre">'(note)(accidental)(octave</span> <span class="pre">number)'</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">'C#4'</span></code>) to MIDI note
+number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">'(note)'</span></code> is required, and is case-insensitive.</p>
+<p><code class="docutils literal notranslate"><span class="pre">'(accidental)'</span></code> should be <code class="docutils literal notranslate"><span class="pre">''</span></code> for natural, <code class="docutils literal notranslate"><span class="pre">'#'</span></code> for sharp and
+<code class="docutils literal notranslate"><span class="pre">'!'</span></code> or <code class="docutils literal notranslate"><span class="pre">'b'</span></code> for flat.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">'(octave)'</span></code> is <code class="docutils literal notranslate"><span class="pre">''</span></code>, octave 0 is assumed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>note_name</strong><span class="classifier">str</span></dt><dd><p>A note name, as described above.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>note_number</strong><span class="classifier">int</span></dt><dd><p>MIDI note number corresponding to the provided note name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Thanks to Brian McFee.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.note_number_to_name">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">note_number_to_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#note_number_to_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.note_number_to_name" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a MIDI note number to its name, in the format
+<code class="docutils literal notranslate"><span class="pre">'(note)(accidental)(octave</span> <span class="pre">number)'</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">'C#4'</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>note_number</strong><span class="classifier">int</span></dt><dd><p>MIDI note number.  If not an int, it will be rounded.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>note_name</strong><span class="classifier">str</span></dt><dd><p>Name of the supplied MIDI note number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Thanks to Brian McFee.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.note_number_to_drum_name">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">note_number_to_drum_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">note_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#note_number_to_drum_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.note_number_to_drum_name" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a MIDI note number in a percussion instrument to the
+corresponding drum name, according to the General MIDI standard.</p>
+<p>Any MIDI note number outside of the valid range (note 35-81, zero-indexed)
+will result in an empty string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>note_number</strong><span class="classifier">int</span></dt><dd><p>MIDI note number.  If not an int, it will be rounded.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>drum_name</strong><span class="classifier">str</span></dt><dd><p>Name of the drum for this note for a percussion instrument.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://www.midi.org/techspecs/gm1sound.php">http://www.midi.org/techspecs/gm1sound.php</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.drum_name_to_note_number">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">drum_name_to_note_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drum_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#drum_name_to_note_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.drum_name_to_note_number" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a drum name to the corresponding MIDI note number for a
+percussion instrument.  Conversion is case, whitespace, and
+non-alphanumeric character insensitive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>drum_name</strong><span class="classifier">str</span></dt><dd><p>Name of a drum which exists in the general MIDI standard.
+If the drum is not found, a ValueError is raised.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>note_number</strong><span class="classifier">int</span></dt><dd><p>The MIDI note number corresponding to this drum.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://www.midi.org/techspecs/gm1sound.php">http://www.midi.org/techspecs/gm1sound.php</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.program_to_instrument_name">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">program_to_instrument_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#program_to_instrument_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.program_to_instrument_name" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a MIDI program number to the corresponding General MIDI
+instrument name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>program_number</strong><span class="classifier">int</span></dt><dd><p>MIDI program number, between 0 and 127.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>instrument_name</strong><span class="classifier">str</span></dt><dd><p>Name of the instrument corresponding to this program number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://www.midi.org/techspecs/gm1sound.php">http://www.midi.org/techspecs/gm1sound.php</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.instrument_name_to_program">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">instrument_name_to_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instrument_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#instrument_name_to_program"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.instrument_name_to_program" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an instrument name to the corresponding General MIDI program
+number.  Conversion is case, whitespace, and non-alphanumeric character
+insensitive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>instrument_name</strong><span class="classifier">str</span></dt><dd><p>Name of an instrument which exists in the general MIDI standard.
+If the instrument is not found, a ValueError is raised.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>program_number</strong><span class="classifier">int</span></dt><dd><p>The MIDI program number corresponding to this instrument.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://www.midi.org/techspecs/gm1sound.php">http://www.midi.org/techspecs/gm1sound.php</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.program_to_instrument_class">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">program_to_instrument_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#program_to_instrument_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.program_to_instrument_class" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a MIDI program number to the corresponding General MIDI
+instrument class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>program_number</strong><span class="classifier">int</span></dt><dd><p>MIDI program number, between 0 and 127.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>instrument_class</strong><span class="classifier">str</span></dt><dd><p>Name of the instrument class corresponding to this program number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://www.midi.org/techspecs/gm1sound.php">http://www.midi.org/techspecs/gm1sound.php</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.pitch_bend_to_semitones">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">pitch_bend_to_semitones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pitch_bend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semitone_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#pitch_bend_to_semitones"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.pitch_bend_to_semitones" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a MIDI pitch bend value (in the range <code class="docutils literal notranslate"><span class="pre">[-8192,</span> <span class="pre">8191]</span></code>) to the
+bend amount in semitones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pitch_bend</strong><span class="classifier">int</span></dt><dd><p>MIDI pitch bend amount, in <code class="docutils literal notranslate"><span class="pre">[-8192,</span> <span class="pre">8191]</span></code>.</p>
+</dd>
+<dt><strong>semitone_range</strong><span class="classifier">float</span></dt><dd><p>Convert to +/- this semitone range.  Default is 2., which is the
+General MIDI standard +/-2 semitone range.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>semitones</strong><span class="classifier">float</span></dt><dd><p>Number of semitones corresponding to this pitch bend amount.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pretty_midi.utilities.semitones_to_pitch_bend">
+<span class="sig-prename descclassname"><span class="pre">pretty_midi.utilities.</span></span><span class="sig-name descname"><span class="pre">semitones_to_pitch_bend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">semitones</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">semitone_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/utilities.html#semitones_to_pitch_bend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.utilities.semitones_to_pitch_bend" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a semitone value to the corresponding MIDI pitch bend integer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>semitones</strong><span class="classifier">float</span></dt><dd><p>Number of semitones for the pitch bend.</p>
+</dd>
+<dt><strong>semitone_range</strong><span class="classifier">float</span></dt><dd><p>Convert to +/- this semitone range.  Default is 2., which is the
+General MIDI standard +/-2 semitone range.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>pitch_bend</strong><span class="classifier">int</span></dt><dd><p>MIDI pitch bend amount, in <code class="docutils literal notranslate"><span class="pre">[-8192,</span> <span class="pre">8191]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="containers.html" class="btn btn-neutral float-left" title="containers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="constants.html" class="btn btn-neutral float-right" title="constants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Colin Raffel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

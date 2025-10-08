@@ -1,0 +1,642 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pretty_midi.instrument &mdash; pretty_midi 0.2.11 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=51edad73"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pretty_midi
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../containers.html">containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../instrument.html">instrument</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pretty_midi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pretty_midi.instrument</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pretty_midi.instrument</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The Instrument class holds all events for a single instrument and contains</span>
+<span class="sd">functions for extracting information from the events it contains.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.containers</span><span class="w"> </span><span class="kn">import</span> <span class="n">PitchBend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">pitch_bend_to_semitones</span><span class="p">,</span> <span class="n">note_number_to_hz</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.fluidsynth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_fluidsynth_instance</span>
+
+
+<div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Instrument</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Object to hold event information for a single instrument.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    program : int</span>
+<span class="sd">        MIDI program number (instrument index), in ``[0, 127]``.</span>
+<span class="sd">    is_drum : bool</span>
+<span class="sd">        Is the instrument a drum instrument (channel 9)?</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the instrument.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    program : int</span>
+<span class="sd">        The program number of this instrument.</span>
+<span class="sd">    is_drum : bool</span>
+<span class="sd">        Is the instrument a drum instrument (channel 9)?</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the instrument.</span>
+<span class="sd">    notes : list</span>
+<span class="sd">        List of :class:`pretty_midi.Note` objects.</span>
+<span class="sd">    pitch_bends : list</span>
+<span class="sd">        List of of :class:`pretty_midi.PitchBend` objects.</span>
+<span class="sd">    control_changes : list</span>
+<span class="sd">        List of :class:`pretty_midi.ControlChange` objects.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Instrument.__init__"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">is_drum</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the Instrument.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">=</span> <span class="n">program</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span> <span class="o">=</span> <span class="n">is_drum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_bends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_changes</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Instrument.get_onsets"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.get_onsets">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_onsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all onsets of all notes played by this instrument.</span>
+<span class="sd">        May contain duplicates.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        onsets : np.ndarray</span>
+<span class="sd">                List of all note onsets.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">onsets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Get the note-on time of each note played by this instrument</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">onsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+        <span class="c1"># Return them sorted (because why not?)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">onsets</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Instrument.get_piano_roll"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.get_piano_roll">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_piano_roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">pedal_threshold</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a piano roll matrix of this instrument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fs : int</span>
+<span class="sd">            Sampling frequency of the columns, i.e. each column is spaced apart</span>
+<span class="sd">            by ``1./fs`` seconds.</span>
+<span class="sd">        times : np.ndarray</span>
+<span class="sd">            Times of the start of each column in the piano roll.</span>
+<span class="sd">            Default ``None`` which is ``np.arange(0, get_end_time(), 1./fs)``.</span>
+<span class="sd">        pedal_threshold : int</span>
+<span class="sd">            Value of control change 64 (sustain pedal) message that is less</span>
+<span class="sd">            than this value is reflected as pedal-off.  Pedals will be</span>
+<span class="sd">            reflected as elongation of notes in the piano roll.</span>
+<span class="sd">            If None, then CC64 message is ignored.</span>
+<span class="sd">            Default is 64.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        piano_roll : np.ndarray, shape=(128,times.shape[0])</span>
+<span class="sd">            Piano roll of this instrument.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If there are no notes, return an empty matrix</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]]</span><span class="o">*</span><span class="mi">128</span><span class="p">)</span>
+        <span class="c1"># Get the end time of the last event</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_end_time</span><span class="p">()</span>
+        <span class="c1"># Extend end time if one was provided</span>
+        <span class="k">if</span> <span class="n">times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">end_time</span><span class="p">:</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Allocate a matrix of zeros - we will add in as we go</span>
+        <span class="n">piano_roll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">128</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="n">end_time</span><span class="p">)))</span>
+        <span class="c1"># Drum tracks don&#39;t have pitch, so return a matrix of zeros</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">piano_roll</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">128</span><span class="p">,</span> <span class="n">times</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="c1"># Add up piano roll matrix, note-by-note</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="c1"># Should interpolate</span>
+            <span class="n">piano_roll</span><span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">pitch</span><span class="p">,</span>
+                       <span class="nb">int</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="o">*</span><span class="n">fs</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">end</span><span class="o">*</span><span class="n">fs</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">note</span><span class="o">.</span><span class="n">velocity</span>
+
+        <span class="c1"># Process sustain pedals</span>
+        <span class="k">if</span> <span class="n">pedal_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">CC_SUSTAIN_PEDAL</span> <span class="o">=</span> <span class="mi">64</span>
+            <span class="n">time_pedal_on</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">is_pedal_on</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span> <span class="p">[</span><span class="n">_e</span> <span class="k">for</span> <span class="n">_e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_changes</span>
+                       <span class="k">if</span> <span class="n">_e</span><span class="o">.</span><span class="n">number</span> <span class="o">==</span> <span class="n">CC_SUSTAIN_PEDAL</span><span class="p">]:</span>
+                <span class="n">time_now</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">time</span><span class="o">*</span><span class="n">fs</span><span class="p">)</span>
+                <span class="n">is_current_pedal_on</span> <span class="o">=</span> <span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">pedal_threshold</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_pedal_on</span> <span class="ow">and</span> <span class="n">is_current_pedal_on</span><span class="p">:</span>
+                    <span class="n">time_pedal_on</span> <span class="o">=</span> <span class="n">time_now</span>
+                    <span class="n">is_pedal_on</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">is_pedal_on</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_current_pedal_on</span><span class="p">:</span>
+                    <span class="c1"># For each pitch, a sustain pedal &quot;retains&quot;</span>
+                    <span class="c1"># the maximum velocity up to now due to</span>
+                    <span class="c1"># logarithmic nature of human loudness perception</span>
+                    <span class="n">subpr</span> <span class="o">=</span> <span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">time_pedal_on</span><span class="p">:</span><span class="n">time_now</span><span class="p">]</span>
+
+                    <span class="c1"># Take the running maximum</span>
+                    <span class="n">pedaled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">subpr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">time_pedal_on</span><span class="p">:</span><span class="n">time_now</span><span class="p">]</span> <span class="o">=</span> <span class="n">pedaled</span>
+                    <span class="n">is_pedal_on</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Process pitch changes</span>
+        <span class="c1"># Need to sort the pitch bend list for the following to work</span>
+        <span class="n">ordered_bends</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_bends</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">bend</span><span class="p">:</span> <span class="n">bend</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+        <span class="c1"># Add in a bend of 0 at the end of time</span>
+        <span class="n">end_bend</span> <span class="o">=</span> <span class="n">PitchBend</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">start_bend</span><span class="p">,</span> <span class="n">end_bend</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ordered_bends</span><span class="p">,</span>
+                                        <span class="n">ordered_bends</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">end_bend</span><span class="p">]):</span>
+            <span class="c1"># Piano roll is already generated with everything bend = 0</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">start_bend</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Get integer and decimal part of bend amount</span>
+            <span class="n">start_pitch</span> <span class="o">=</span> <span class="n">pitch_bend_to_semitones</span><span class="p">(</span><span class="n">start_bend</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span>
+            <span class="n">bend_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">start_pitch</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">start_pitch</span><span class="p">)))</span>
+            <span class="n">bend_decimal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">start_pitch</span> <span class="o">-</span> <span class="n">bend_int</span><span class="p">)</span>
+            <span class="c1"># Column indices effected by the bend</span>
+            <span class="n">bend_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">start_bend</span><span class="o">.</span><span class="n">time</span><span class="o">*</span><span class="n">fs</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">end_bend</span><span class="o">.</span><span class="n">time</span><span class="o">*</span><span class="n">fs</span><span class="p">)]</span>
+            <span class="c1"># Construct the bent part of the piano roll</span>
+            <span class="n">bent_roll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">bend_range</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="c1"># Easiest to process differently depending on bend sign</span>
+            <span class="k">if</span> <span class="n">start_bend</span><span class="o">.</span><span class="n">pitch</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># First, pitch shift by the int amount</span>
+                <span class="k">if</span> <span class="n">bend_int</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">bent_roll</span><span class="p">[</span><span class="n">bend_int</span><span class="p">:]</span> <span class="o">=</span> <span class="n">piano_roll</span><span class="p">[:</span><span class="o">-</span><span class="n">bend_int</span><span class="p">,</span> <span class="n">bend_range</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bent_roll</span> <span class="o">=</span> <span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">bend_range</span><span class="p">]</span>
+                <span class="c1"># Now, linear interpolate by the decimal place</span>
+                <span class="n">bent_roll</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bend_decimal</span><span class="p">)</span><span class="o">*</span><span class="n">bent_roll</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span>
+                                 <span class="n">bend_decimal</span><span class="o">*</span><span class="n">bent_roll</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Same procedure as for positive bends</span>
+                <span class="k">if</span> <span class="n">bend_int</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">bent_roll</span><span class="p">[:</span><span class="n">bend_int</span><span class="p">]</span> <span class="o">=</span> <span class="n">piano_roll</span><span class="p">[</span><span class="o">-</span><span class="n">bend_int</span><span class="p">:,</span> <span class="n">bend_range</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">bent_roll</span> <span class="o">=</span> <span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">bend_range</span><span class="p">]</span>
+                <span class="n">bent_roll</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bend_decimal</span><span class="p">)</span><span class="o">*</span><span class="n">bent_roll</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                                  <span class="n">bend_decimal</span><span class="o">*</span><span class="n">bent_roll</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="c1"># Store bent portion back in piano roll</span>
+            <span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">bend_range</span><span class="p">]</span> <span class="o">=</span> <span class="n">bent_roll</span>
+
+        <span class="k">if</span> <span class="n">times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">piano_roll</span>
+        <span class="n">piano_roll_integrated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">128</span><span class="p">,</span> <span class="n">times</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="c1"># Convert to column indices</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">times</span><span class="o">*</span><span class="n">fs</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">times</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">:])):</span>
+            <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">piano_roll</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>  <span class="c1"># if start is &gt;=, leave zeros</span>
+                <span class="k">if</span> <span class="n">start</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="c1"># Each column is the mean of the columns in piano_roll</span>
+                <span class="n">piano_roll_integrated</span><span class="p">[:,</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">piano_roll</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span>
+                                                      <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">piano_roll_integrated</span></div>
+
+<div class="viewcode-block" id="Instrument.get_chroma"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.get_chroma">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_chroma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pedal_threshold</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a sequence of chroma vectors from this instrument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fs : int</span>
+<span class="sd">            Sampling frequency of the columns, i.e. each column is spaced apart</span>
+<span class="sd">            by ``1./fs`` seconds.</span>
+<span class="sd">        times : np.ndarray</span>
+<span class="sd">            Times of the start of each column in the piano roll.</span>
+<span class="sd">            Default ``None`` which is ``np.arange(0, get_end_time(), 1./fs)``.</span>
+<span class="sd">        pedal_threshold : int</span>
+<span class="sd">            Value of control change 64 (sustain pedal) message that is less</span>
+<span class="sd">            than this value is reflected as pedal-off.  Pedals will be</span>
+<span class="sd">            reflected as elongation of notes in the piano roll.</span>
+<span class="sd">            If None, then CC64 message is ignored.</span>
+<span class="sd">            Default is 64.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        piano_roll : np.ndarray, shape=(12,times.shape[0])</span>
+<span class="sd">            Chromagram of this instrument.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First, get the piano roll</span>
+        <span class="n">piano_roll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_piano_roll</span><span class="p">(</span><span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="n">times</span><span class="p">,</span>
+                                         <span class="n">pedal_threshold</span><span class="o">=</span><span class="n">pedal_threshold</span><span class="p">)</span>
+        <span class="c1"># Fold into one octave</span>
+        <span class="n">chroma_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="n">piano_roll</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
+            <span class="n">chroma_matrix</span><span class="p">[</span><span class="n">note</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">piano_roll</span><span class="p">[</span><span class="n">note</span><span class="p">::</span><span class="mi">12</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chroma_matrix</span></div>
+
+<div class="viewcode-block" id="Instrument.get_end_time"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.get_end_time">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_end_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the time of the end of the events in this instrument.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        end_time : float</span>
+<span class="sd">            Time, in seconds, of the last event.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Cycle through all note ends and all pitch bends and find the largest</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">end</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">]</span> <span class="o">+</span>
+                  <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_bends</span><span class="p">]</span> <span class="o">+</span>
+                  <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">time</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_changes</span><span class="p">])</span>
+        <span class="c1"># If there are no events, just return 0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">events</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Instrument.get_pitch_class_histogram"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.get_pitch_class_histogram">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_pitch_class_histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_duration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the frequency of pitch classes of this instrument,</span>
+<span class="sd">        optionally weighted by their durations or velocities.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        use_duration : bool</span>
+<span class="sd">            Weight frequency by note duration.</span>
+<span class="sd">        use_velocity : bool</span>
+<span class="sd">            Weight frequency by note velocity.</span>
+<span class="sd">        normalize : bool</span>
+<span class="sd">            Normalizes the histogram such that the sum of bin values is 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        histogram : np.ndarray, shape=(12,)</span>
+<span class="sd">            Histogram of pitch classes given current instrument, optionally</span>
+<span class="sd">            weighted by their durations or velocities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Return all zeros if track is drum</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">))</span>
+
+        <span class="c1"># Assumes that duration and velocity have equal weight</span>
+        <span class="k">if</span> <span class="n">use_duration</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">*=</span> <span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">note</span><span class="o">.</span><span class="n">start</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">use_velocity</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">*=</span> <span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">velocity</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">]</span>
+
+        <span class="n">histogram</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">pitch</span> <span class="o">%</span> <span class="mi">12</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">],</span>
+                                    <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span>
+                                    <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+                                    <span class="n">density</span><span class="o">=</span><span class="n">normalize</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">histogram</span></div>
+
+<div class="viewcode-block" id="Instrument.get_pitch_class_transition_matrix"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.get_pitch_class_transition_matrix">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_pitch_class_transition_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                          <span class="n">time_thresh</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the pitch class transition matrix of this instrument.</span>
+<span class="sd">        Transitions are added whenever the end of a note is within</span>
+<span class="sd">        ``time_tresh`` from the start of any other note.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        normalize : bool</span>
+<span class="sd">            Normalize transition matrix such that matrix sum equals to 1.</span>
+<span class="sd">        time_thresh : float</span>
+<span class="sd">            Maximum temporal threshold, in seconds, between the start of a note</span>
+<span class="sd">            and end time of any other note for a transition to be added.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        transition_matrix : np.ndarray, shape=(12,12)</span>
+<span class="sd">            Pitch class transition matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># instrument is drum or less than one note, return all zeros</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+
+        <span class="c1"># retrieve note starts, ends and pitch classes(nodes) from self.notes</span>
+        <span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">,</span> <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[[</span><span class="n">x</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">pitch</span> <span class="o">%</span> <span class="mi">12</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># compute distance matrix for all start and end time pairs</span>
+        <span class="n">dist_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ends</span><span class="p">,</span> <span class="n">starts</span><span class="p">)</span>
+
+        <span class="c1"># find indices of pairs of notes where the end time of one note is</span>
+        <span class="c1"># within time_thresh of the start time of the other</span>
+        <span class="n">sources</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">time_thresh</span><span class="p">)</span>
+
+        <span class="n">transition_matrix</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">sources</span><span class="p">],</span>
+                                                 <span class="n">nodes</span><span class="p">[</span><span class="n">targets</span><span class="p">],</span>
+                                                 <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span>
+                                                 <span class="n">density</span><span class="o">=</span><span class="n">normalize</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transition_matrix</span></div>
+
+<div class="viewcode-block" id="Instrument.remove_invalid_notes"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.remove_invalid_notes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_invalid_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes any notes whose end time is before or at their start time.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Crete a list of all invalid notes</span>
+        <span class="n">notes_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;=</span> <span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="p">:</span>
+                <span class="n">notes_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+        <span class="c1"># Remove the notes found</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">notes_to_delete</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">note</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Instrument.synthesize"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.synthesize">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">synthesize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">44100</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Synthesize the instrument&#39;s notes using some waveshape.</span>
+<span class="sd">        For drum instruments, returns zeros.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fs : int</span>
+<span class="sd">            Sampling rate of the synthesized audio signal.</span>
+<span class="sd">        wave : function</span>
+<span class="sd">            Function which returns a periodic waveform,</span>
+<span class="sd">            e.g. ``np.sin``, ``scipy.signal.square``, etc.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        synthesized : np.ndarray</span>
+<span class="sd">            Waveform of the instrument&#39;s notes, synthesized at ``fs``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Pre-allocate output waveform</span>
+        <span class="n">synthesized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_end_time</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+
+        <span class="c1"># If we&#39;re a percussion channel, just return the zeros</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">synthesized</span>
+        <span class="c1"># If the above if statement failed, we need to revert back to default</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="s1">&#39;__call__&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wave should be a callable Python function&#39;</span><span class="p">)</span>
+        <span class="c1"># This is a simple way to make the end of the notes fade-out without</span>
+        <span class="c1"># clicks</span>
+        <span class="n">fade_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">.1</span><span class="o">*</span><span class="n">fs</span><span class="p">))</span>
+        <span class="c1"># Create a frequency multiplier array for pitch bend</span>
+        <span class="n">bend_multiplier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">synthesized</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># Need to sort the pitch bend list for the loop below to work</span>
+        <span class="n">ordered_bends</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_bends</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">bend</span><span class="p">:</span> <span class="n">bend</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+        <span class="c1"># Add in a bend of 0 at the end of time</span>
+        <span class="n">end_bend</span> <span class="o">=</span> <span class="n">PitchBend</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_end_time</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">start_bend</span><span class="p">,</span> <span class="n">end_bend</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ordered_bends</span><span class="p">,</span>
+                                        <span class="n">ordered_bends</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">end_bend</span><span class="p">]):</span>
+            <span class="c1"># Bend start and end time in samples</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_bend</span><span class="o">.</span><span class="n">time</span><span class="o">*</span><span class="n">fs</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_bend</span><span class="o">.</span><span class="n">time</span><span class="o">*</span><span class="n">fs</span><span class="p">)</span>
+            <span class="c1"># The multiplier will be (twelfth root of 2)^(bend semitones)</span>
+            <span class="n">bend_semitones</span> <span class="o">=</span> <span class="n">pitch_bend_to_semitones</span><span class="p">(</span><span class="n">start_bend</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span>
+            <span class="n">bend_amount</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">12.</span><span class="p">))</span><span class="o">**</span><span class="n">bend_semitones</span>
+            <span class="c1"># Sample indices effected by the bend</span>
+            <span class="n">bend_multiplier</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">bend_amount</span>
+        <span class="c1"># Add in waveform for each note</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="c1"># Indices in samples of this note</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="n">note</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+            <span class="c1"># Get frequency of note from MIDI note number</span>
+            <span class="n">frequency</span> <span class="o">=</span> <span class="n">note_number_to_hz</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span>
+            <span class="c1"># When a pitch bend gets applied, there will be a sample</span>
+            <span class="c1"># discontinuity. So, we also need an array of offsets which get</span>
+            <span class="c1"># applied to compensate.</span>
+            <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">bend</span> <span class="ow">in</span> <span class="n">ordered_bends</span><span class="p">:</span>
+                <span class="n">bend_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bend</span><span class="o">.</span><span class="n">time</span><span class="o">*</span><span class="n">fs</span><span class="p">)</span>
+                <span class="c1"># Does this pitch bend fall within this note?</span>
+                <span class="k">if</span> <span class="n">bend_sample</span> <span class="o">&gt;</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">bend_sample</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+                    <span class="c1"># Compute the average bend so far</span>
+                    <span class="n">bend_so_far</span> <span class="o">=</span> <span class="n">bend_multiplier</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">bend_sample</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                    <span class="n">bend_amount</span> <span class="o">=</span> <span class="n">bend_multiplier</span><span class="p">[</span><span class="n">bend_sample</span><span class="p">]</span>
+                    <span class="c1"># Compute the offset correction</span>
+                    <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">bend_so_far</span> <span class="o">-</span> <span class="n">bend_amount</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">bend_sample</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+                    <span class="c1"># Store this offset for samples effected</span>
+                    <span class="n">offsets</span><span class="p">[</span><span class="n">bend_sample</span> <span class="o">-</span> <span class="n">start</span><span class="p">:]</span> <span class="o">=</span> <span class="n">offset</span>
+            <span class="c1"># Compute the angular frequencies, bent, over this interval</span>
+            <span class="n">frequencies</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequency</span><span class="o">*</span><span class="p">(</span><span class="n">bend_multiplier</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">])</span><span class="o">/</span><span class="n">fs</span>
+            <span class="c1"># Synthesize using wave function at this frequency</span>
+            <span class="n">note_waveform</span> <span class="o">=</span> <span class="n">wave</span><span class="p">(</span><span class="n">frequencies</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">+</span>
+                                 <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">frequency</span><span class="o">*</span><span class="n">offsets</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span>
+            <span class="c1"># Apply an exponential envelope</span>
+            <span class="n">envelope</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">fs</span><span class="p">))</span>
+            <span class="c1"># Make the end of the envelope be a fadeout</span>
+            <span class="k">if</span> <span class="n">envelope</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">fade_out</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">envelope</span><span class="p">[</span><span class="o">-</span><span class="n">fade_out</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span> <span class="o">*=</span> <span class="n">fade_out</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">envelope</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">envelope</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="c1"># Multiply by velocity (don&#39;t think it&#39;s linearly scaled but</span>
+            <span class="c1"># whatever)</span>
+            <span class="n">envelope</span> <span class="o">*=</span> <span class="n">note</span><span class="o">.</span><span class="n">velocity</span>
+            <span class="c1"># Add in envelope&#39;d waveform to the synthesized signal</span>
+            <span class="n">synthesized</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">+=</span> <span class="n">envelope</span><span class="o">*</span><span class="n">note_waveform</span>
+
+        <span class="k">return</span> <span class="n">synthesized</span></div>
+
+<div class="viewcode-block" id="Instrument.fluidsynth"><a class="viewcode-back" href="../../instrument.html#pretty_midi.instrument.Instrument.fluidsynth">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fluidsynth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">synthesizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sfid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sf2_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Synthesize using fluidsynth.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fs : int</span>
+<span class="sd">            Sampling rate to synthesize at.</span>
+<span class="sd">            Default ``None``, which takes the sampling rate from ``synthesizer``, or</span>
+<span class="sd">            uses ``pretty_midi.fluidsynth.DEFAULT_SAMPLE_RATE`` = 44100 if a synthesizer</span>
+<span class="sd">            needs to be created.</span>
+<span class="sd">        synthesizer : fluidsynth.Synth or str</span>
+<span class="sd">            fluidsynth.Synth instance to use or a string with the path to a .sf2 file.</span>
+<span class="sd">            Default ``None``, which creates a new instance using the TimGM6mb.sf2 file</span>
+<span class="sd">            included with ``pretty_midi``.</span>
+<span class="sd">        sfid : int</span>
+<span class="sd">            Soundfont ID to use if an instance of fluidsynth.Synth is provided.</span>
+<span class="sd">            Default ``0``, which uses the first soundfont.</span>
+<span class="sd">        sf2_path : str</span>
+<span class="sd">            Path to a .sf2 file.</span>
+<span class="sd">            Default ``None``, which uses the TimGM6mb.sf2 file included with</span>
+<span class="sd">            ``pretty_midi``.</span>
+<span class="sd">            .. deprecated:: 0.2.11</span>
+<span class="sd">                Use :param:`synthesizer` instead.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        synthesized : np.ndarray</span>
+<span class="sd">            Waveform of the MIDI data, synthesized at ``fs``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sf2_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The parameter &#39;sf2_path&#39; is deprecated, please use &#39;synthesizer&#39; instead.&quot;</span><span class="p">,</span>
+                 <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">synthesizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sf2_path and synthesizer cannot both be supplied.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">synthesizer</span> <span class="o">=</span> <span class="n">sf2_path</span>
+
+        <span class="c1"># If the instrument has no notes, return an empty array</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="c1"># Create a fluidsynth instance if one wasn&#39;t provided</span>
+        <span class="c1"># Raises ValueError if sample rates do not match</span>
+        <span class="n">synthesizer</span><span class="p">,</span> <span class="n">sfid</span><span class="p">,</span> <span class="n">delete_synthesizer</span> <span class="o">=</span> <span class="n">get_fluidsynth_instance</span><span class="p">(</span><span class="n">synthesizer</span><span class="p">,</span> <span class="n">sfid</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="c1"># Sample rate required below to compute note positions</span>
+        <span class="c1"># Take from synthesizer in case fs was not passed explicitly</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">synthesizer</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s1">&#39;synth.sample-rate&#39;</span><span class="p">)</span>
+
+        <span class="c1"># If this is a drum instrument, use channel 9 and bank 128</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span><span class="p">:</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="mi">9</span>
+            <span class="c1"># Try to use the supplied program number</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">synthesizer</span><span class="o">.</span><span class="n">program_select</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">sfid</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">)</span>
+            <span class="c1"># If the result is -1, there&#39;s no preset with this program number</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># So use preset 0</span>
+                <span class="n">synthesizer</span><span class="o">.</span><span class="n">program_select</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">sfid</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Otherwise just use channel 0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">synthesizer</span><span class="o">.</span><span class="n">program_select</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">sfid</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">)</span>
+        <span class="c1"># Collect all notes in one list</span>
+        <span class="n">event_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">event_list</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="s1">&#39;note on&#39;</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">pitch</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">velocity</span><span class="p">]]</span>
+            <span class="n">event_list</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">note</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="s1">&#39;note off&#39;</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">pitch</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">bend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_bends</span><span class="p">:</span>
+            <span class="n">event_list</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">bend</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="s1">&#39;pitch bend&#39;</span><span class="p">,</span> <span class="n">bend</span><span class="o">.</span><span class="n">pitch</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">control_change</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_changes</span><span class="p">:</span>
+            <span class="n">event_list</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">control_change</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="s1">&#39;control change&#39;</span><span class="p">,</span>
+                            <span class="n">control_change</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="n">control_change</span><span class="o">.</span><span class="n">value</span><span class="p">]]</span>
+        <span class="c1"># Sort the event list by time, and secondarily by whether the event</span>
+        <span class="c1"># is a note off</span>
+        <span class="n">event_list</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;note off&#39;</span><span class="p">))</span>
+        <span class="c1"># Add some silence at the beginning according to the time of the first</span>
+        <span class="c1"># event</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">event_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Convert absolute seconds to relative samples</span>
+        <span class="n">next_event_times</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">event_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">event_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">next_event_times</span><span class="p">):</span>
+            <span class="n">event</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">event</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Include 1 second of silence at the end</span>
+        <span class="n">event_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="c1"># Pre-allocate output array</span>
+        <span class="n">total_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">event_list</span><span class="p">])</span>
+        <span class="n">synthesized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="n">total_time</span><span class="p">)))</span>
+        <span class="c1"># Iterate over all events</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">event_list</span><span class="p">:</span>
+            <span class="c1"># Process events based on type</span>
+            <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;note on&#39;</span><span class="p">:</span>
+                <span class="n">synthesizer</span><span class="o">.</span><span class="n">noteon</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">event</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;note off&#39;</span><span class="p">:</span>
+                <span class="n">synthesizer</span><span class="o">.</span><span class="n">noteoff</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;pitch bend&#39;</span><span class="p">:</span>
+                <span class="n">synthesizer</span><span class="o">.</span><span class="n">pitch_bend</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;control change&#39;</span><span class="p">:</span>
+                <span class="n">synthesizer</span><span class="o">.</span><span class="n">cc</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">event</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="c1"># Add in these samples</span>
+            <span class="n">current_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="n">current_time</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fs</span><span class="o">*</span><span class="p">(</span><span class="n">current_time</span> <span class="o">+</span> <span class="n">event</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">synthesizer</span><span class="o">.</span><span class="n">get_samples</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">current_sample</span><span class="p">)[::</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">synthesized</span><span class="p">[</span><span class="n">current_sample</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">+=</span> <span class="n">samples</span>
+            <span class="c1"># Increment the current sample</span>
+            <span class="n">current_time</span> <span class="o">+=</span> <span class="n">event</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Close fluidsynth if it was a local instance created in the function</span>
+        <span class="k">if</span> <span class="n">delete_synthesizer</span><span class="p">:</span>
+            <span class="n">synthesizer</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">synthesized</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Instrument(program=</span><span class="si">{}</span><span class="s1">, is_drum=</span><span class="si">{}</span><span class="s1">, name=&quot;</span><span class="si">{}</span><span class="s1">&quot;)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_drum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\&quot;&#39;</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Colin Raffel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

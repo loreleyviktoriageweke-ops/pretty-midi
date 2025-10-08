@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>instrument &mdash; pretty_midi 0.2.11 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=51edad73"></script>
+      <script src="_static/doctools.js?v=888ff710"></script>
+      <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="constants" href="constants.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pretty_midi
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="containers.html">containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">constants</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">instrument</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pretty_midi.instrument.Instrument"><code class="docutils literal notranslate"><span class="pre">Instrument</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.__init__"><code class="docutils literal notranslate"><span class="pre">Instrument.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.get_onsets"><code class="docutils literal notranslate"><span class="pre">Instrument.get_onsets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.get_piano_roll"><code class="docutils literal notranslate"><span class="pre">Instrument.get_piano_roll()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.get_chroma"><code class="docutils literal notranslate"><span class="pre">Instrument.get_chroma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.get_end_time"><code class="docutils literal notranslate"><span class="pre">Instrument.get_end_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.get_pitch_class_histogram"><code class="docutils literal notranslate"><span class="pre">Instrument.get_pitch_class_histogram()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.get_pitch_class_transition_matrix"><code class="docutils literal notranslate"><span class="pre">Instrument.get_pitch_class_transition_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.remove_invalid_notes"><code class="docutils literal notranslate"><span class="pre">Instrument.remove_invalid_notes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.synthesize"><code class="docutils literal notranslate"><span class="pre">Instrument.synthesize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pretty_midi.instrument.Instrument.fluidsynth"><code class="docutils literal notranslate"><span class="pre">Instrument.fluidsynth()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pretty_midi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">instrument</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instrument.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pretty_midi.instrument">
+<span id="instrument"></span><h1>instrument<a class="headerlink" href="#module-pretty_midi.instrument" title="Permalink to this heading"></a></h1>
+<p>The Instrument class holds all events for a single instrument and contains
+functions for extracting information from the events it contains.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pretty_midi.instrument.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_drum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument" title="Permalink to this definition"></a></dt>
+<dd><p>Object to hold event information for a single instrument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>program</strong><span class="classifier">int</span></dt><dd><p>MIDI program number (instrument index), in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">127]</span></code>.</p>
+</dd>
+<dt><strong>is_drum</strong><span class="classifier">bool</span></dt><dd><p>Is the instrument a drum instrument (channel 9)?</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the instrument.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>program</strong><span class="classifier">int</span></dt><dd><p>The program number of this instrument.</p>
+</dd>
+<dt><strong>is_drum</strong><span class="classifier">bool</span></dt><dd><p>Is the instrument a drum instrument (channel 9)?</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the instrument.</p>
+</dd>
+<dt><strong>notes</strong><span class="classifier">list</span></dt><dd><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">pretty_midi.Note</span></code> objects.</p>
+</dd>
+<dt><strong>pitch_bends</strong><span class="classifier">list</span></dt><dd><p>List of of <code class="xref py py-class docutils literal notranslate"><span class="pre">pretty_midi.PitchBend</span></code> objects.</p>
+</dd>
+<dt><strong>control_changes</strong><span class="classifier">list</span></dt><dd><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">pretty_midi.ControlChange</span></code> objects.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_drum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Create the Instrument.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.get_onsets">
+<span class="sig-name descname"><span class="pre">get_onsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.get_onsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.get_onsets" title="Permalink to this definition"></a></dt>
+<dd><p>Get all onsets of all notes played by this instrument.
+May contain duplicates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>onsets</strong><span class="classifier">np.ndarray</span></dt><dd><p>List of all note onsets.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.get_piano_roll">
+<span class="sig-name descname"><span class="pre">get_piano_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pedal_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.get_piano_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.get_piano_roll" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a piano roll matrix of this instrument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fs</strong><span class="classifier">int</span></dt><dd><p>Sampling frequency of the columns, i.e. each column is spaced apart
+by <code class="docutils literal notranslate"><span class="pre">1./fs</span></code> seconds.</p>
+</dd>
+<dt><strong>times</strong><span class="classifier">np.ndarray</span></dt><dd><p>Times of the start of each column in the piano roll.
+Default <code class="docutils literal notranslate"><span class="pre">None</span></code> which is <code class="docutils literal notranslate"><span class="pre">np.arange(0,</span> <span class="pre">get_end_time(),</span> <span class="pre">1./fs)</span></code>.</p>
+</dd>
+<dt><strong>pedal_threshold</strong><span class="classifier">int</span></dt><dd><p>Value of control change 64 (sustain pedal) message that is less
+than this value is reflected as pedal-off.  Pedals will be
+reflected as elongation of notes in the piano roll.
+If None, then CC64 message is ignored.
+Default is 64.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>piano_roll</strong><span class="classifier">np.ndarray, shape=(128,times.shape[0])</span></dt><dd><p>Piano roll of this instrument.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.get_chroma">
+<span class="sig-name descname"><span class="pre">get_chroma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pedal_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.get_chroma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.get_chroma" title="Permalink to this definition"></a></dt>
+<dd><p>Get a sequence of chroma vectors from this instrument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fs</strong><span class="classifier">int</span></dt><dd><p>Sampling frequency of the columns, i.e. each column is spaced apart
+by <code class="docutils literal notranslate"><span class="pre">1./fs</span></code> seconds.</p>
+</dd>
+<dt><strong>times</strong><span class="classifier">np.ndarray</span></dt><dd><p>Times of the start of each column in the piano roll.
+Default <code class="docutils literal notranslate"><span class="pre">None</span></code> which is <code class="docutils literal notranslate"><span class="pre">np.arange(0,</span> <span class="pre">get_end_time(),</span> <span class="pre">1./fs)</span></code>.</p>
+</dd>
+<dt><strong>pedal_threshold</strong><span class="classifier">int</span></dt><dd><p>Value of control change 64 (sustain pedal) message that is less
+than this value is reflected as pedal-off.  Pedals will be
+reflected as elongation of notes in the piano roll.
+If None, then CC64 message is ignored.
+Default is 64.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>piano_roll</strong><span class="classifier">np.ndarray, shape=(12,times.shape[0])</span></dt><dd><p>Chromagram of this instrument.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.get_end_time">
+<span class="sig-name descname"><span class="pre">get_end_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.get_end_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.get_end_time" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the time of the end of the events in this instrument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>end_time</strong><span class="classifier">float</span></dt><dd><p>Time, in seconds, of the last event.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.get_pitch_class_histogram">
+<span class="sig-name descname"><span class="pre">get_pitch_class_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.get_pitch_class_histogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.get_pitch_class_histogram" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the frequency of pitch classes of this instrument,
+optionally weighted by their durations or velocities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>use_duration</strong><span class="classifier">bool</span></dt><dd><p>Weight frequency by note duration.</p>
+</dd>
+<dt><strong>use_velocity</strong><span class="classifier">bool</span></dt><dd><p>Weight frequency by note velocity.</p>
+</dd>
+<dt><strong>normalize</strong><span class="classifier">bool</span></dt><dd><p>Normalizes the histogram such that the sum of bin values is 1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>histogram</strong><span class="classifier">np.ndarray, shape=(12,)</span></dt><dd><p>Histogram of pitch classes given current instrument, optionally
+weighted by their durations or velocities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.get_pitch_class_transition_matrix">
+<span class="sig-name descname"><span class="pre">get_pitch_class_transition_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.get_pitch_class_transition_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.get_pitch_class_transition_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the pitch class transition matrix of this instrument.
+Transitions are added whenever the end of a note is within
+<code class="docutils literal notranslate"><span class="pre">time_tresh</span></code> from the start of any other note.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>normalize</strong><span class="classifier">bool</span></dt><dd><p>Normalize transition matrix such that matrix sum equals to 1.</p>
+</dd>
+<dt><strong>time_thresh</strong><span class="classifier">float</span></dt><dd><p>Maximum temporal threshold, in seconds, between the start of a note
+and end time of any other note for a transition to be added.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>transition_matrix</strong><span class="classifier">np.ndarray, shape=(12,12)</span></dt><dd><p>Pitch class transition matrix.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.remove_invalid_notes">
+<span class="sig-name descname"><span class="pre">remove_invalid_notes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.remove_invalid_notes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.remove_invalid_notes" title="Permalink to this definition"></a></dt>
+<dd><p>Removes any notes whose end time is before or at their start time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.synthesize">
+<span class="sig-name descname"><span class="pre">synthesize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs=44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave=&lt;ufunc</span> <span class="pre">'sin'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.synthesize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.synthesize" title="Permalink to this definition"></a></dt>
+<dd><p>Synthesize the instrument’s notes using some waveshape.
+For drum instruments, returns zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fs</strong><span class="classifier">int</span></dt><dd><p>Sampling rate of the synthesized audio signal.</p>
+</dd>
+<dt><strong>wave</strong><span class="classifier">function</span></dt><dd><p>Function which returns a periodic waveform,
+e.g. <code class="docutils literal notranslate"><span class="pre">np.sin</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy.signal.square</span></code>, etc.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>synthesized</strong><span class="classifier">np.ndarray</span></dt><dd><p>Waveform of the instrument’s notes, synthesized at <code class="docutils literal notranslate"><span class="pre">fs</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pretty_midi.instrument.Instrument.fluidsynth">
+<span class="sig-name descname"><span class="pre">fluidsynth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthesizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sf2_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pretty_midi/instrument.html#Instrument.fluidsynth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pretty_midi.instrument.Instrument.fluidsynth" title="Permalink to this definition"></a></dt>
+<dd><p>Synthesize using fluidsynth.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>fs</strong><span class="classifier">int</span></dt><dd><p>Sampling rate to synthesize at.
+Default <code class="docutils literal notranslate"><span class="pre">None</span></code>, which takes the sampling rate from <code class="docutils literal notranslate"><span class="pre">synthesizer</span></code>, or
+uses <code class="docutils literal notranslate"><span class="pre">pretty_midi.fluidsynth.DEFAULT_SAMPLE_RATE</span></code> = 44100 if a synthesizer
+needs to be created.</p>
+</dd>
+<dt><strong>synthesizer</strong><span class="classifier">fluidsynth.Synth or str</span></dt><dd><p>fluidsynth.Synth instance to use or a string with the path to a .sf2 file.
+Default <code class="docutils literal notranslate"><span class="pre">None</span></code>, which creates a new instance using the TimGM6mb.sf2 file
+included with <code class="docutils literal notranslate"><span class="pre">pretty_midi</span></code>.</p>
+</dd>
+<dt><strong>sfid</strong><span class="classifier">int</span></dt><dd><p>Soundfont ID to use if an instance of fluidsynth.Synth is provided.
+Default <code class="docutils literal notranslate"><span class="pre">0</span></code>, which uses the first soundfont.</p>
+</dd>
+<dt><strong>sf2_path</strong><span class="classifier">str</span></dt><dd><p>Path to a .sf2 file.
+Default <code class="docutils literal notranslate"><span class="pre">None</span></code>, which uses the TimGM6mb.sf2 file included with
+<code class="docutils literal notranslate"><span class="pre">pretty_midi</span></code>.
+.. deprecated:: 0.2.11</p>
+<blockquote>
+<div><p>Use <a href="#id1"><span class="problematic" id="id2">:param:`synthesizer`</span></a> instead.</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>synthesized</strong><span class="classifier">np.ndarray</span></dt><dd><p>Waveform of the MIDI data, synthesized at <code class="docutils literal notranslate"><span class="pre">fs</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="constants.html" class="btn btn-neutral float-left" title="constants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Colin Raffel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

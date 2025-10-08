@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pretty_midi.containers &mdash; pretty_midi 0.2.11 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=51edad73"></script>
+      <script src="../../_static/doctools.js?v=888ff710"></script>
+      <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pretty_midi
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../containers.html">containers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities.html">utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../instrument.html">instrument</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pretty_midi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pretty_midi.containers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pretty_midi.containers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;These classes simply hold MIDI data in a convenient form.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">key_number_to_key_name</span>
+
+
+<div class="viewcode-block" id="Note"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Note">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Note</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A note event.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    velocity : int</span>
+<span class="sd">        Note velocity.</span>
+<span class="sd">    pitch : int</span>
+<span class="sd">        Note pitch, as a MIDI note number.</span>
+<span class="sd">    start : float</span>
+<span class="sd">        Note on time, absolute, in seconds.</span>
+<span class="sd">    end : float</span>
+<span class="sd">        Note off time, absolute, in seconds.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Note.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Note.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="n">start</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Note end time must be greater than start time&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="n">velocity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">pitch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span></div>
+
+<div class="viewcode-block" id="Note.get_duration"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Note.get_duration">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the duration of the note in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_duration</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Note(start=</span><span class="si">{:f}</span><span class="s1">, end=</span><span class="si">{:f}</span><span class="s1">, pitch=</span><span class="si">{}</span><span class="s1">, velocity=</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PitchBend"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.PitchBend">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PitchBend</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A pitch bend event.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pitch : int</span>
+<span class="sd">        MIDI pitch bend amount, in the range ``[-8192, 8191]``.</span>
+<span class="sd">    time : float</span>
+<span class="sd">        Time where the pitch bend occurs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PitchBend.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.PitchBend.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">pitch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;PitchBend(pitch=</span><span class="si">{:d}</span><span class="s1">, time=</span><span class="si">{:f}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ControlChange"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.ControlChange">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ControlChange</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A control change event.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    number : int</span>
+<span class="sd">        The control change number, in ``[0, 127]``.</span>
+<span class="sd">    value : int</span>
+<span class="sd">        The value of the control change, in ``[0, 127]``.</span>
+<span class="sd">    time : float</span>
+<span class="sd">        Time where the control change occurs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ControlChange.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.ControlChange.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="n">number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;ControlChange(number=</span><span class="si">{:d}</span><span class="s1">, value=</span><span class="si">{:d}</span><span class="s1">, &#39;</span>
+                <span class="s1">&#39;time=</span><span class="si">{:f}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TimeSignature"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.TimeSignature">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">TimeSignature</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Container for a Time Signature event, which contains the time signature</span>
+<span class="sd">    numerator, denominator and the event time in seconds.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    numerator : int</span>
+<span class="sd">        Numerator of time signature.</span>
+<span class="sd">    denominator : int</span>
+<span class="sd">        Denominator of time signature.</span>
+<span class="sd">    time : float</span>
+<span class="sd">        Time of event in seconds.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Instantiate a TimeSignature object with 6/8 time signature at 3.14 seconds:</span>
+
+<span class="sd">    &gt;&gt;&gt; ts = TimeSignature(6, 8, 3.14)</span>
+<span class="sd">    &gt;&gt;&gt; print(ts)</span>
+<span class="sd">    6/8 at 3.14 seconds</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TimeSignature.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.TimeSignature.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numerator</span><span class="p">,</span> <span class="n">denominator</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">numerator</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numerator</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid `numerator` type or value&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">numerator</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">denominator</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">denominator</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid `denominator` type or value&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">denominator</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">time</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid `time` type or value&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerator</span> <span class="o">=</span> <span class="n">numerator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">denominator</span> <span class="o">=</span> <span class="n">denominator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;TimeSignature(numerator=</span><span class="si">{}</span><span class="s2">, denominator=</span><span class="si">{}</span><span class="s2">, time=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">denominator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1"> at </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">denominator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KeySignature"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.KeySignature">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">KeySignature</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains the key signature and the event time in seconds.</span>
+<span class="sd">    Only supports major and minor keys.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key_number : int</span>
+<span class="sd">        Key number according to ``[0, 11]`` Major, ``[12, 23]`` minor.</span>
+<span class="sd">        For example, 0 is C Major, 12 is C minor.</span>
+<span class="sd">    time : float</span>
+<span class="sd">        Time of event in seconds.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Instantiate a C# minor KeySignature object at 3.14 seconds:</span>
+
+<span class="sd">    &gt;&gt;&gt; ks = KeySignature(13, 3.14)</span>
+<span class="sd">    &gt;&gt;&gt; print(ks)</span>
+<span class="sd">    C# minor at 3.14 seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KeySignature.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.KeySignature.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_number</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key_number</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+                    <span class="n">key_number</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="n">key_number</span> <span class="o">&lt;</span> <span class="mi">24</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid `key_number` type or value&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">key_number</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">time</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not a valid `time` type or value&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_number</span> <span class="o">=</span> <span class="n">key_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;KeySignature(key_number=</span><span class="si">{}</span><span class="s2">, time=</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> at </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">key_number_to_key_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_number</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Lyric"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Lyric">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Lyric</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Timestamped lyric text.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    text : str</span>
+<span class="sd">        The text of the lyric.</span>
+<span class="sd">    time : float</span>
+<span class="sd">        The time in seconds of the lyric.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Lyric.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Lyric.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Lyric(text=&quot;</span><span class="si">{}</span><span class="s1">&quot;, time=</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\&quot;&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot; at </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Text"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Text">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Text</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Timestamped text event.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    text : str</span>
+<span class="sd">        The text.</span>
+<span class="sd">    time : float</span>
+<span class="sd">        The time it occurs in seconds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Text.__init__"><a class="viewcode-back" href="../../containers.html#pretty_midi.containers.Text.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Text(text=&quot;</span><span class="si">{}</span><span class="s1">&quot;, time=</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\&quot;&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot; at </span><span class="si">{:.2f}</span><span class="s1"> seconds&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Colin Raffel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
